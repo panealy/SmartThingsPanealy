@@ -1,5 +1,5 @@
 /*
- *  Wink Light Bulb
+ *  Lutron Pico Remote
  *
  *  Author: panealy@gmail.com
  *  Date: 2017-02-19
@@ -24,7 +24,7 @@
  *                       Changes
  *****************************************************************
  *
- *  2017-02-19    Initial Creation
+ *  2017-02-25    Initial Creation
  *
  *****************************************************************
  *                       Code
@@ -33,7 +33,7 @@
  // for the UI
 metadata {
 	// Automatically generated. Make future change here.
-	definition (name: "Wink Light Bulb", namespace: "panealy", author: "panealy@gmail.com") {
+	definition (name: "Lutron Pico Remote", namespace: "panealy", author: "panealy@gmail.com") {
 		capability "Refresh"
 		capability "Polling"
 		capability "Switch"
@@ -91,10 +91,10 @@ def uninstalled() {
 
 def poll() {
 	log.debug "Executing 'poll'"
-	parent.pollLightBulb(this)
+	parent.pollRemote(this)
 }
 
 def refresh() {
 	log.debug "Executing 'refresh'"
-	parent.pollLightBulb(this)
+	parent.pollRemote(this)
 }
