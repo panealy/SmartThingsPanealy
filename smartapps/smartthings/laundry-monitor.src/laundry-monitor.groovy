@@ -31,7 +31,7 @@ definition(
 
 preferences {
 	section("Tell me when this washer/dryer has stopped..."){
-		input "sensor1", "capability.accelerationSensor"
+		input "sensor1", "capability.energyMeter"
 	}
 	section("Via this number (optional, sends push notification if not specified)"){
         input("recipients", "contact", title: "Send notifications to") {
@@ -60,8 +60,7 @@ def updated()
 }
 
 def initialize() {
-	subscribe(sensor1, "acceleration.active", accelerationActiveHandler)
-	subscribe(sensor1, "acceleration.inactive", accelerationInactiveHandler)
+	subscribe(sensor1, "energy", energyChangeHandler)
 }
 
 def accelerationActiveHandler(evt) {

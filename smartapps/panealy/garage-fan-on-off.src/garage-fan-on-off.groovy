@@ -17,7 +17,7 @@
         name: "Garage Fan On/Off",
         namespace: "panealy",
         author: "Peter Nealy",
-        description: "Turn garage fan on upon garage entry, and off after a period of a few hours.",
+        description: "Turn garage devices on upon garage entry, and off after a period of a few hours. Primarily for garage fans.",
         category: "My Apps",
         iconUrl: "http://cdn.device-icons.smartthings.com/Appliances/appliances11-icn.png",
         iconX2Url: "http://cdn.device-icons.smartthings.com/Appliances/appliances11-icn@2x.png",
@@ -43,6 +43,10 @@
         section("And then turn it off this many minutes (default 120 minutes...") {
         	input "minutesUntilOff", "number", title: "after the outlet turns off", required: false, defaultValue: 120
         }
+        
+        section("Disable runtime if switch or outlet is manually manipulated?") {
+        	input "disableOnInteraction", "bool", required: false, defaultValue: false
+        }
     }
     
     def installed() {
@@ -59,55 +63,67 @@
     }
 
 def initialize() {
-    //state.deviceState = [:]
-    multiSensor.each { device ->
+    state.deviceState = [:]
+    /*multiSensor.each { device ->
     	log.debug device
         if (device.contact == "contact.open") log.debug "sensor ${device} indicates OPEN"
         if (device.contact == "contact.closed") log.debug "sensor ${device} indicates CLOSED"
  		subscribe(device, "contact.open", deviceOnHandler)
 		subscribe(device, "contact.closed", deviceOffHandler)
-	}
-
-    //state.outletOn = false
-    //outlet1.off()
-    //initOutlets()
-    //initSwitches()
+	}*/
+	initSensors()
+    initOutlets()
+    initSwitches()
 }
-/*
+
+def initSensors() {
+	log.debug "Initializing sensors ${multiSensor}"
+    multiSensor.each { device ->
+    	def attr = device.currentState("contact")
+    	log.debug "Subscribing device ${device}, currentState ${attr.value}"
+        //state.deviceState[device].lastState = attr.value
+ 		subscribe(device, "contact.open", deviceOnHandler)
+		subscribe(device, "contact.closed", deviceOffHandler)
+	}
+}
+
 def initOutlets() {
-	false
+    outlets.each { dni ->
+    	def attr = dni.currentState("outlet")
+        log.debug "initializing outlet ${dni} (currentState: ${attr.value})"
+		state.deviceState[dni] = false
+    }
 }
 
 def initSwitches() {
-	false
+    switches.each { dni ->
+    	def attr = dni.currentState("switch")
+        log.debug "initializing switch ${dni} (currentState: ${attr.value})"
+		state.deviceState[dni] = false
+    }
 }
-*/
 
 def deviceOnHandler(evt) {
-	log.debug "outletOnHandler ${evt} | minutesToWait=${minutesToWait}"
+	log.debug "deviceOnHandler ${evt} | minutesToWait=${minutesToWait}"
     if(minutesToWait > 0) runIn(minutesToWait*60, devicesOn) else devicesOn()
 }
 
 def deviceOffHandler(evt) {
-	log.debug "outletOffHandler ${evt} | minutesUntilOff=${minutesUntilOff}"
+	log.debug "deviceOffHandler ${evt} | minutesUntilOff=${minutesUntilOff}"
     if(minutesUntilOff > 0) runIn(minutesUntilOff*60, devicesOff) else devicesOff()
 }
 
 def devicesOff() {
-/*
     outlets.each { dni ->
         log.debug "turning off outlet ${dni}"
-		//dni.off()
-		//state.deviceState[dni] = false
+		dni.off()
+		state.deviceState[dni] = false
     }
     switches.each { dni ->
         log.debug "turning off switch ${dni}"
-		//dni.off()
-		//state.deviceState[dni] = false
+		dni.off()
+		state.deviceState[dni] = false
     }
-    */
-    switches.off()
-    //outlets.off()
 }
 
 def devicesOn() {
@@ -121,7 +137,4 @@ def devicesOn() {
 		dni.on()
 		state.deviceState[dni] = true
     }
-
-    //switches.on()
-    //outlets.on()
 }
